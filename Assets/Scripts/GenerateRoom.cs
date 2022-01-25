@@ -7,9 +7,10 @@ public class GenerateRoom : MonoBehaviour
     public GameObject BaseFloor_prefab;
     private GameObject baseFloor;
     
-
+    // Controla si la habitacion tendra mas de una seccion (TBI)
     public bool isCompound = true;
 
+    // Parametros de habitacion
     private int minSizeX = 5;
     private int minSizeZ = 5;
     private int maxSizeX = 10;
@@ -30,14 +31,14 @@ public class GenerateRoom : MonoBehaviour
     void Start()
     {
         DefineParameters();
-        GenerateFloor();
+        GenerateFloor(1);
         if (isCompound) 
         {
-
+            //TBI
         }
     }
 
-
+    // Genera numeros aleatorios segun los parametros maximos y minimos
     public void DefineParameters() 
     {
         roomSizeX = Random.Range(minSizeX, maxSizeX);
@@ -45,12 +46,20 @@ public class GenerateRoom : MonoBehaviour
         roomSizeY = Random.Range(2, maxSizeY);
         numDoors = Random.Range(minNumDoors, maxNumDoors);
     }
-    public void GenerateFloor() 
+    public void GenerateFloor(int sectionNumber) 
     {
-        GameObject FloorSection = new GameObject("FloorSection");
+        // Listas para generar las paredes (TBI)
+        List<GameObject> northPerimeter;
+        List<GameObject> southPerimeter;
+        List<GameObject> eastPerimeter;
+        List<GameObject> westPerimeter;
+
+        // Genera una cuadricula de prefabs de suelo, la taggea segun las propiedades y la emparenta a un nuevo game object root
+        GameObject FloorSection = new GameObject($"FloorSectionRoot{sectionNumber}");
         startPos = new Vector3(roomSizeX / 2, roomSizeZ / 2, 0);
         for (int i = 0; i < roomSizeX; i++)
         {
+            // comprovacion de si el suelo que va a generar es perimetro o esquina
             for (int j = 0; j < roomSizeZ; j++)
             {
                 if (i == 0 || j == 0 || i == roomSizeX-1 || j == roomSizeZ-1)
