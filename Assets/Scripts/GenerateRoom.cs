@@ -6,7 +6,7 @@ public class GenerateRoom : MonoBehaviour
 {
     public GameObject BaseFloor_prefab;
     private GameObject baseFloor;
-    
+
     // Controla si la habitacion tendra mas de una seccion (TBI)
     public bool isCompound = true;
 
@@ -25,34 +25,35 @@ public class GenerateRoom : MonoBehaviour
     public int roomSizeZ;
     public int roomSizeY;
     public int numDoors;
-    
+
 
     // Start is called before the first frame update
     void Start()
     {
         DefineParameters();
         GenerateFloor(1);
-        if (isCompound) 
+        if (isCompound)
         {
             //TBI
         }
     }
 
     // Genera numeros aleatorios segun los parametros maximos y minimos
-    public void DefineParameters() 
+    public void DefineParameters()
     {
         roomSizeX = Random.Range(minSizeX, maxSizeX);
         roomSizeZ = Random.Range(minSizeZ, maxSizeZ);
         roomSizeY = Random.Range(2, maxSizeY);
         numDoors = Random.Range(minNumDoors, maxNumDoors);
     }
-    public void GenerateFloor(int sectionNumber) 
+    public void GenerateFloor(int sectionNumber)
     {
         // Listas para generar las paredes (TBI)
-        List<GameObject> northPerimeter;
-        List<GameObject> southPerimeter;
-        List<GameObject> eastPerimeter;
-        List<GameObject> westPerimeter;
+        List<GameObject> northPerimeter = new List<GameObject>(); 
+        List<GameObject> southPerimeter = new List<GameObject>();
+        List<GameObject> eastPerimeter = new List<GameObject>();
+        List<GameObject> westPerimeter = new List<GameObject>();
+        
 
         // Genera una cuadricula de prefabs de suelo, la taggea segun las propiedades y la emparenta a un nuevo game object root
         GameObject FloorSection = new GameObject($"FloorSectionRoot{sectionNumber}");
@@ -62,23 +63,28 @@ public class GenerateRoom : MonoBehaviour
             // comprovacion de si el suelo que va a generar es perimetro o esquina
             for (int j = 0; j < roomSizeZ; j++)
             {
-                if (i == 0 || j == 0 || i == roomSizeX-1 || j == roomSizeZ-1)
+                if (i == 0 || j == 0 || i == roomSizeX - 1 || j == roomSizeZ - 1)
                 {
-                    if(i == 0 && j == 0 || i == 0 && j == roomSizeZ-1 || i == roomSizeX-1 && j == 0 || i == roomSizeX-1 && j == roomSizeZ-1) 
+                    if (i == 0 && j == 0 || i == 0 && j == roomSizeZ - 1 || i == roomSizeX - 1 && j == 0 || i == roomSizeX - 1 && j == roomSizeZ - 1)
                     {
                         baseFloor = Instantiate(BaseFloor_prefab, startPos + new Vector3(i, 0f, j), Quaternion.identity);
                         baseFloor.transform.SetParent(FloorSection.transform);
                         baseFloor.tag = "FloorPerimeterCorner";
+                       
                     }
-                    else 
+                    else
                     {
                         baseFloor = Instantiate(BaseFloor_prefab, startPos + new Vector3(i, 0f, j), Quaternion.identity);
                         baseFloor.transform.SetParent(FloorSection.transform);
                         baseFloor.tag = "FloorPerimeter";
+                        if (baseFloor.transform.position.x > FloorSection.transform.position.x)
+                        {
+                            Destroy(baseFloor);
+                        }
                     }
-                    
+
                 }
-                else 
+                else
                 {
                     baseFloor = Instantiate(BaseFloor_prefab, startPos + new Vector3(i, 0f, j), Quaternion.identity);
                     baseFloor.transform.SetParent(FloorSection.transform);
