@@ -341,13 +341,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BaseFloor_prefab: {fileID: 6335178709625695793, guid: 6209facf2aa275a44b76b8007c151ac3, type: 3}
+  BaseFloor_perimeter: {fileID: 6335178709625695793, guid: 9358eeaba9df4b24a88b790d4cf043f3, type: 3}
+  BaseFloor_corner: {fileID: 6335178709625695793, guid: 3154867fd14dabe46b272f70937f1ee2, type: 3}
   isCompound: 1
   maxNumDoors: 5
   minNumDoors: 2
+  templateRange: 3
   roomSizeX: 0
   roomSizeZ: 0
   roomSizeY: 0
   numDoors: 0
+  numSections: 0
+  sectionCoordinates:
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
 --- !u!4 &1421649004
 Transform:
   m_ObjectHideFlags: 0
@@ -374,6 +389,7 @@ GameObject:
   - component: {fileID: 1897588509}
   - component: {fileID: 1897588508}
   - component: {fileID: 1897588511}
+  - component: {fileID: 1897588512}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -478,3 +494,43 @@ MonoBehaviour:
   m_RequiresDepthTexture: 0
   m_RequiresColorTexture: 0
   m_Version: 2
+--- !u!114 &1897588512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1897588507}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be76e5f14cfee674cb30b491fb72b09b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boost: 3.5
+  positionLerpTime: 0.2
+  mouseSensitivityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  rotationLerpTime: 0.01
+  invertY: 1
