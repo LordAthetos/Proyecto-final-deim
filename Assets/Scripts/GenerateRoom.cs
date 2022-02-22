@@ -9,19 +9,24 @@ public class Choice
 {
     public string choiceName;
     public int weight;
-    public Choice(string newChoiceName, int newChoiceWeight)
+    public int choiceID;
+    public Choice(string newChoiceName, int newchoiceID, int newChoiceWeight)
     {
         choiceName = newChoiceName;
         weight = newChoiceWeight;
+        choiceID = newchoiceID;
     }
 }
-
-
 
 public class GenerateRoom : MonoBehaviour
 {
     List<Choice> choices = new List<Choice>();
     int totalWeight;
+
+    // Objectos para las paredes 
+    public GameObject[] eastWallObjects;
+
+
 
     public GameObject BaseFloor_prefab;
     public GameObject BaseFloor_perimeter;
@@ -53,27 +58,31 @@ public class GenerateRoom : MonoBehaviour
 
     public Vector3[] sectionCoordinates = new Vector3[10];
 
+    private int currentWallID;
+
     
-    
+
     // east = 0
     // south = 1
     // west = 2
     // north = 3
-    int[][] wallValue = new int[4][];
+    int[][] wallValue = new int[4][]{
+        new int[10],
+        new int[10],
+        new int[10],
+        new int[10]
+    };
 
-
-
-    //public GameObject[] templatePrefabs = new GameObject[10];
-    //private int sectionCounter;
-
+    Choice selectedChoice;
 
     // Start is called before the first frame update
     void Start()
     {
+        
 
-        choices.Add(new Choice("Wall", 2));
-        choices.Add(new Choice("Door", 2));
-        choices.Add(new Choice("OpenSpace", 2));
+        choices.Add(new Choice("wall", 1, 25));
+        choices.Add(new Choice("door", 2, 25));
+        choices.Add(new Choice("space", 3, 50));
         foreach (Choice entry in choices)
         {
             totalWeight += entry.weight;
@@ -87,7 +96,7 @@ public class GenerateRoom : MonoBehaviour
         }
 
     }
-
+    
     // Genera numeros aleatorios segun los parametros maximos y minimos
     public void DefineParameters()
     {
@@ -156,6 +165,7 @@ public class GenerateRoom : MonoBehaviour
             notRepeated = false;
 
         }
+        
         for (int sectionCounter = 0; sectionCounter <= maxNumSections; sectionCounter += 1)
         {
 
@@ -164,44 +174,60 @@ public class GenerateRoom : MonoBehaviour
 
             // 0 = perimetro externo
 
-            //+x  east
+            //+x  east  0
             adjacentOperator = new Vector3(currentTile.x + 1, 0, currentTile.z);
             if (sectionCoordinates.Contains(adjacentOperator))
             {
-                
+                //Debug.Log("Adjacent east");
+                selectedChoice = ChooseFromOptions();
+                wallValue[0][sectionCounter] = selectedChoice.choiceID;
+                //Debug.Log(wallValue[0][sectionCounter]);
             }
             else
             {
                 wallValue[0][sectionCounter] = 0;
+
             }
-            //-z  south
+            //-z  south  1
             adjacentOperator = new Vector3(currentTile.x, 0, currentTile.z - 1);
             if (sectionCoordinates.Contains(adjacentOperator))
             {
-
+                //Debug.Log("Adjacent south");
+                selectedChoice = ChooseFromOptions();
+                wallValue[1][sectionCounter] = selectedChoice.choiceID;
+                //Debug.Log(wallValue[1][sectionCounter]);
             }
             else
             {
+                wallValue[1][sectionCounter] = 0;
 
             }
-            //-x  west
+            //-x  west  2
             adjacentOperator = new Vector3(currentTile.x - 1, 0, currentTile.z);
             if (sectionCoordinates.Contains(adjacentOperator))
             {
-                
+                //Debug.Log("Adjacent west");
+                selectedChoice = ChooseFromOptions();
+                wallValue[2][sectionCounter] = selectedChoice.choiceID;
+                //Debug.Log(wallValue[2][sectionCounter]);
             }
             else
             {
+                wallValue[2][sectionCounter] = 0;
 
             }
-            //+z  north
+            //+z  north  3
             adjacentOperator = new Vector3(currentTile.x, 0, currentTile.z + 1);
             if (sectionCoordinates.Contains(adjacentOperator))
             {
-
+                //Debug.Log("Adjacent north");
+                selectedChoice = ChooseFromOptions();
+                wallValue[3][sectionCounter] = selectedChoice.choiceID;
+                //Debug.Log(wallValue[3][sectionCounter]);
             }
             else
             {
+                wallValue[3][sectionCounter] = 0;
 
             }
 
@@ -211,11 +237,11 @@ public class GenerateRoom : MonoBehaviour
 
     public void GenerateFloor(int sectionNumber)
     {
-        int northWall = Random.Range(0, 5);
-        int southWall = Random.Range(0, 5);
-        int eastWall = Random.Range(0, 5);
-        int westWall = Random.Range(0, 5);
-
+        int northWall;
+        int southWall;
+        int eastWall;
+        int westWall;
+        
 
         // Listas para generar las paredes (TBI)
         List<GameObject> northPerimeter = new List<GameObject>();
@@ -249,11 +275,12 @@ public class GenerateRoom : MonoBehaviour
                         baseFloor.transform.position = new Vector3(baseFloor.transform.position.x, baseFloor.transform.position.y, baseFloor.transform.position.z) - offset;
                         baseFloor.transform.SetParent(FloorSection.transform);
                         baseFloor.tag = "FloorPerimeter";
-                        if (i == 0)
+                        if (i == 0 && j == (roomSizeZ / 2))
                         {
-                            eastPerimeter.Add(baseFloor);
+                            eastWall = wallValue[0][sectionNumber];
+                            Debug.Log($"this worked, current value is: {eastWall}");
                         }
-                        if (j == 0)
+                        /*if (j == 0)
                         {
                             southPerimeter.Add(baseFloor);
                         }
@@ -264,7 +291,7 @@ public class GenerateRoom : MonoBehaviour
                         if (i == roomSizeZ)
                         {
                             northPerimeter.Add(baseFloor);
-                        }
+                        }*/
                     }
 
                 }
@@ -281,8 +308,54 @@ public class GenerateRoom : MonoBehaviour
         FloorSection.transform.position = new Vector3(moveToTemplate.x * roomSizeX, 0, moveToTemplate.z * roomSizeZ);
 
     }
-    public void GenerateWalls()
+    public void GenerateWall(int wallCenter, int wallType, int wallLenght, int wallHeigh, int direction)
     {
+
+        Vector3 dirMult = Vector3.zero;
+        switch (direction)
+        {
+            case 0:
+                dirMult = Vector3.right;
+                break;
+            case 1:
+                dirMult = Vector3.back;
+                break;
+            case 2:
+                dirMult = Vector3.left;
+                break;
+            case 3:
+                dirMult = Vector3.forward;
+                break;
+        }
+
+        switch (wallType)
+        {
+            case 0:     //Perimetro
+                GeneratePerimeter(wallCenter, wallLenght, wallHeigh, direction, dirMult, eastWallObjects);
+                break;
+            case 1:     //Pared entre seccion
+
+                break;
+            case 2:     //Puerta entre seccion
+
+                break;
+            case 3:     //Vacio
+                break;
+            case 4:     //Puerta entre habitacion
+
+                break;
+        }
+    }
+    
+    // Funciones para diferentes tipos de muros
+
+    public void GeneratePerimeter(int wallCenter, int wallLenght, int wallHeigh, int direction, Vector3 dirVector, GameObject[] wallPrefabs)
+    {
+        // [0] Puerta/Root;  [1] Pared normal;  [2]
+        //construir paredes
+        startPos = wallCenter - (wallLenght / 2);
+        
+
 
     }
 
@@ -302,6 +375,7 @@ public class GenerateRoom : MonoBehaviour
         Debug.Log("nothing to choose from");
         return null;
     }
+    
 
 
 }
