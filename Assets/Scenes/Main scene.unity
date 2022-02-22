@@ -340,9 +340,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28b316dec5fd4934a8cd54ea62fcb8a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  WallObjects:
+  - {fileID: 7648346428533582794, guid: dcba15e45124aa84987cbf6ffed7cb6b, type: 3}
+  - {fileID: 2437191358732504657, guid: 84bf2d8aaa6a4fb41bb093b28a406773, type: 3}
+  - {fileID: 2437191358732504657, guid: ec30a2e4fcf1c0e43a749ccd5b2b428f, type: 3}
+  - {fileID: 7648346428533582794, guid: dcba15e45124aa84987cbf6ffed7cb6b, type: 3}
+  - {fileID: 7648346428533582794, guid: dcba15e45124aa84987cbf6ffed7cb6b, type: 3}
+  - {fileID: 7648346428533582794, guid: dcba15e45124aa84987cbf6ffed7cb6b, type: 3}
+  - {fileID: 7648346428533582794, guid: dcba15e45124aa84987cbf6ffed7cb6b, type: 3}
+  - {fileID: 7648346428533582794, guid: dcba15e45124aa84987cbf6ffed7cb6b, type: 3}
   BaseFloor_prefab: {fileID: 6335178709625695793, guid: 6209facf2aa275a44b76b8007c151ac3, type: 3}
   BaseFloor_perimeter: {fileID: 6335178709625695793, guid: 9358eeaba9df4b24a88b790d4cf043f3, type: 3}
   BaseFloor_corner: {fileID: 6335178709625695793, guid: 3154867fd14dabe46b272f70937f1ee2, type: 3}
+  Debugger: {fileID: 7648346428533582794, guid: 8e3ec23ff4c3eee4a8e03e9c39096ad0, type: 3}
   isCompound: 1
   maxNumDoors: 5
   minNumDoors: 2

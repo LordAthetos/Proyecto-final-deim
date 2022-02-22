@@ -20,11 +20,22 @@ public class Choice
 
 public class GenerateRoom : MonoBehaviour
 {
-    List<Choice> choices = new List<Choice>();
-    int totalWeight;
+    List<Choice> templateChoices = new List<Choice>();
+    int totalTemplateWeight;
+
+    List<Choice> wallTypeChoices = new List<Choice>();
+    int totalWallTypeWeight;
+
+    List<Choice> wallDecoration = new List<Choice>();
+    int totalWallDecWeight;
+
+    List<Choice> floorDecorationChoices = new List<Choice>();
+    int totalFloorDecWeight;
+
+
 
     // Objectos para las paredes 
-    public GameObject[] eastWallObjects;
+    public GameObject[] WallObjects;
 
 
 
@@ -32,6 +43,9 @@ public class GenerateRoom : MonoBehaviour
     public GameObject BaseFloor_perimeter;
     public GameObject BaseFloor_corner;
     private GameObject baseFloor;
+    private GameObject wall;
+
+    public GameObject Debugger;
 
     private GameObject templateFloor;
 
@@ -79,14 +93,41 @@ public class GenerateRoom : MonoBehaviour
     void Start()
     {
         
-
-        choices.Add(new Choice("wall", 1, 25));
-        choices.Add(new Choice("door", 2, 25));
-        choices.Add(new Choice("space", 3, 50));
-        foreach (Choice entry in choices)
+        // General Template 
+        templateChoices.Add(new Choice("wall", 1, 25));
+        templateChoices.Add(new Choice("door", 2, 25));
+        templateChoices.Add(new Choice("space", 3, 50));
+        foreach (Choice entry in templateChoices)
         {
-            totalWeight += entry.weight;
+            totalTemplateWeight += entry.weight;
         }
+        // Vertical wall slice types
+        wallTypeChoices.Add(new Choice("SWall", 1, 100));
+        wallTypeChoices.Add(new Choice("Window", 2, 10));
+        foreach (Choice entry in wallTypeChoices)
+        {
+            totalWallTypeWeight += entry.weight;
+        }
+        // Wall Decoration
+        wallDecoration.Add(new Choice("SWall", 2, 50));
+        wallDecoration.Add(new Choice("Graffitti_1", 3, 5));
+        wallDecoration.Add(new Choice("Graffitti_2", 4, 5));
+        wallDecoration.Add(new Choice("Poster_1", 5, 5));
+        wallDecoration.Add(new Choice("Poster_2", 6, 5));
+        wallDecoration.Add(new Choice("Wall_crack", 7, 5));
+        foreach (Choice entry in wallDecoration)
+        {
+            totalWallDecWeight += entry.weight;
+        }
+        // Floor Decoration
+        floorDecorationChoices.Add(new Choice("Floor", 1, 100));
+        floorDecorationChoices.Add(new Choice("Trapdoor", 2, 5));
+        floorDecorationChoices.Add(new Choice("Generator", 3, 2));
+        foreach (Choice entry in floorDecorationChoices)
+        {
+            totalFloorDecWeight += entry.weight;
+        }
+
 
         DefineParameters();
         GenerateTemplate();
@@ -121,7 +162,7 @@ public class GenerateRoom : MonoBehaviour
 
 
 
-        for (int sectionCounter = 1; sectionCounter <= maxNumSections; sectionCounter += 1)
+        for (int sectionCounter = 1; sectionCounter <= numSections; sectionCounter += 1)
         {
             while (!isAdjacent || !notRepeated)
             {
@@ -166,7 +207,7 @@ public class GenerateRoom : MonoBehaviour
 
         }
         
-        for (int sectionCounter = 0; sectionCounter <= maxNumSections; sectionCounter += 1)
+        for (int sectionCounter = 0; sectionCounter <= numSections; sectionCounter += 1)
         {
 
             currentTile = sectionCoordinates[sectionCounter];
@@ -175,11 +216,11 @@ public class GenerateRoom : MonoBehaviour
             // 0 = perimetro externo
 
             //+x  east  0
-            adjacentOperator = new Vector3(currentTile.x + 1, 0, currentTile.z);
+            adjacentOperator = new Vector3(currentTile.x - 1, 0, currentTile.z);
             if (sectionCoordinates.Contains(adjacentOperator))
             {
                 //Debug.Log("Adjacent east");
-                selectedChoice = ChooseFromOptions();
+                selectedChoice = ChooseTemplate();
                 wallValue[0][sectionCounter] = selectedChoice.choiceID;
                 //Debug.Log(wallValue[0][sectionCounter]);
             }
@@ -189,11 +230,11 @@ public class GenerateRoom : MonoBehaviour
 
             }
             //-z  south  1
-            adjacentOperator = new Vector3(currentTile.x, 0, currentTile.z - 1);
+            adjacentOperator = new Vector3(currentTile.x, 0, currentTile.z + 1);
             if (sectionCoordinates.Contains(adjacentOperator))
             {
                 //Debug.Log("Adjacent south");
-                selectedChoice = ChooseFromOptions();
+                selectedChoice = ChooseTemplate();
                 wallValue[1][sectionCounter] = selectedChoice.choiceID;
                 //Debug.Log(wallValue[1][sectionCounter]);
             }
@@ -203,11 +244,11 @@ public class GenerateRoom : MonoBehaviour
 
             }
             //-x  west  2
-            adjacentOperator = new Vector3(currentTile.x - 1, 0, currentTile.z);
+            adjacentOperator = new Vector3(currentTile.x + 1, 0, currentTile.z);
             if (sectionCoordinates.Contains(adjacentOperator))
             {
                 //Debug.Log("Adjacent west");
-                selectedChoice = ChooseFromOptions();
+                selectedChoice = ChooseTemplate();
                 wallValue[2][sectionCounter] = selectedChoice.choiceID;
                 //Debug.Log(wallValue[2][sectionCounter]);
             }
@@ -217,11 +258,11 @@ public class GenerateRoom : MonoBehaviour
 
             }
             //+z  north  3
-            adjacentOperator = new Vector3(currentTile.x, 0, currentTile.z + 1);
+            adjacentOperator = new Vector3(currentTile.x, 0, currentTile.z - 1);
             if (sectionCoordinates.Contains(adjacentOperator))
             {
                 //Debug.Log("Adjacent north");
-                selectedChoice = ChooseFromOptions();
+                selectedChoice = ChooseTemplate();
                 wallValue[3][sectionCounter] = selectedChoice.choiceID;
                 //Debug.Log(wallValue[3][sectionCounter]);
             }
@@ -275,23 +316,34 @@ public class GenerateRoom : MonoBehaviour
                         baseFloor.transform.position = new Vector3(baseFloor.transform.position.x, baseFloor.transform.position.y, baseFloor.transform.position.z) - offset;
                         baseFloor.transform.SetParent(FloorSection.transform);
                         baseFloor.tag = "FloorPerimeter";
-                        if (i == 0 && j == (roomSizeZ / 2))
+                        if (i == 0 && j == (roomSizeX / 2))
                         {
                             eastWall = wallValue[0][sectionNumber];
-                            Debug.Log($"this worked, current value is: {eastWall}");
+                            //Debug.Log($"east: {eastWall}");
+                            Instantiate(Debugger, new Vector3(i, 0, j), Quaternion.identity);
+                            GenerateWall(j, eastWall, roomSizeX, roomSizeY, roomSizeZ / 2, 0, FloorSection, offset);
                         }
-                        /*if (j == 0)
+                        if (j == 0 && i == (roomSizeZ / 2))
                         {
-                            southPerimeter.Add(baseFloor);
+                            southWall = wallValue[1][sectionNumber];
+                            //Debug.Log($"south: {southWall}");
+                            Instantiate(Debugger, new Vector3(i, 0, j), Quaternion.identity);
+                            GenerateWall(i, southWall, roomSizeZ, roomSizeY, roomSizeX / 2, 1, FloorSection, offset);
                         }
-                        if (i == roomSizeX)
+                        if (i == roomSizeX-1 && j == (roomSizeZ / 2))
                         {
-                            westPerimeter.Add(baseFloor);
+                            westWall = wallValue[2][sectionNumber];
+                            //Debug.Log($"west: {westWall}");
+                            Instantiate(Debugger, new Vector3(i, 0, j), Quaternion.identity);
+                            GenerateWall(j, westWall, roomSizeX, roomSizeY, roomSizeZ / 2, 2, FloorSection, - offset);
                         }
-                        if (i == roomSizeZ)
+                        if (j == roomSizeZ-1 && i == (roomSizeX / 2))
                         {
-                            northPerimeter.Add(baseFloor);
-                        }*/
+                            northWall = wallValue[3][sectionNumber];
+                            //Debug.Log($"north: {northWall}");
+                            Instantiate(Debugger, new Vector3(i, 0, j), Quaternion.identity);
+                            GenerateWall(i, northWall, roomSizeZ, roomSizeY, roomSizeX / 2, 3, FloorSection, - offset);
+                        }
                     }
 
                 }
@@ -308,20 +360,21 @@ public class GenerateRoom : MonoBehaviour
         FloorSection.transform.position = new Vector3(moveToTemplate.x * roomSizeX, 0, moveToTemplate.z * roomSizeZ);
 
     }
-    public void GenerateWall(int wallCenter, int wallType, int wallLenght, int wallHeigh, int direction)
+
+    public void GenerateWall(int wallCenter, int wallType, int wallLenght, int wallHeigh, int wallOffset, int direction, GameObject sectionParent, Vector3 dirOffset)
     {
 
         Vector3 dirMult = Vector3.zero;
         switch (direction)
         {
             case 0:
-                dirMult = Vector3.right;
+                dirMult = Vector3.left;
                 break;
             case 1:
                 dirMult = Vector3.back;
                 break;
             case 2:
-                dirMult = Vector3.left;
+                dirMult = Vector3.right;
                 break;
             case 3:
                 dirMult = Vector3.forward;
@@ -331,51 +384,139 @@ public class GenerateRoom : MonoBehaviour
         switch (wallType)
         {
             case 0:     //Perimetro
-                GeneratePerimeter(wallCenter, wallLenght, wallHeigh, direction, dirMult, eastWallObjects);
+                GeneratePerimeter(wallCenter, wallLenght, wallHeigh, wallOffset, direction, dirMult, false, sectionParent,  dirOffset);
                 break;
             case 1:     //Pared entre seccion
-
+                //GeneratePerimeter(wallCenter, wallLenght, wallHeigh, wallOffset, direction, dirMult, false, sectionParent,  dirOffset);
                 break;
             case 2:     //Puerta entre seccion
-
+                //GeneratePerimeter(wallCenter, wallLenght, wallHeigh, wallOffset, direction, dirMult, false, sectionParent,  dirOffset);
                 break;
             case 3:     //Vacio
+                //GeneratePerimeter(wallCenter, wallLenght, wallHeigh, wallOffset, direction, dirMult, false, sectionParent,  dirOffset);
                 break;
             case 4:     //Puerta entre habitacion
-
+                //GeneratePerimeter(wallCenter, wallLenght, wallHeigh, wallOffset, direction, dirMult, false, sectionParent, dirOffset);
                 break;
         }
     }
     
     // Funciones para diferentes tipos de muros
 
-    public void GeneratePerimeter(int wallCenter, int wallLenght, int wallHeigh, int direction, Vector3 dirVector, GameObject[] wallPrefabs)
+    public void GeneratePerimeter(int wallCenter, int wallLenght, int wallHeigh, int wallOffset, int direction, Vector3 dirVector,bool hasDoor, GameObject sectionParent, Vector3 dirOffset)
     {
-        // [0] Puerta/Root;  [1] Pared normal;  [2]
+        // [0] Puerta/Root;  [1] Pared normal;  [2] 
         //construir paredes
-        startPos = wallCenter - (wallLenght / 2);
-        
+        int startPos = wallCenter - (wallLenght / 2);
+        int currentWallStrip = 0;
+        int currentWall = 0;
+        //bool hasDoorBeenBuilt = false;
+        for (int i = startPos; i < wallLenght; i++)
+        {
+            if (i == wallCenter && hasDoor)
+            {
+                currentWallStrip = 0;
+            } 
+            else
+            {
+                selectedChoice = ChooseWalltypes();
+                //Debug.Log($"{selectedChoice.choiceName} {selectedChoice.choiceID}");
+                currentWallStrip = selectedChoice.choiceID;
+            }
 
+            for (int h = 0; h < wallHeigh; h++)
+            {
+                switch (currentWallStrip)
+                {
+                    case 0: // puerta
+                        currentWall = 2;
+                        break;
+                    case 1: // pared 
+                        selectedChoice = ChooseWallDecoration();
+                        currentWall = selectedChoice.choiceID;
+                        
+                        break;
+                    case 2: // ventana 
+                        currentWall = 1;
+                        break;
+                }
+
+                wall = Instantiate(WallObjects[currentWall], new Vector3(dirVector.x * i, h, dirVector.z * i), Quaternion.identity);
+                wall.transform.position = new Vector3(wall.transform.position.x, wall.transform.position.y, wall.transform.position.z) + dirOffset;
+                wall.transform.SetParent(sectionParent.transform);
+                //instantiate current wall
+
+
+            }
+
+
+
+        }
 
     }
 
 
-    Choice ChooseFromOptions()
+    Choice ChooseTemplate()
     {
-        int randomNumber = Random.Range(1, totalWeight + 1);
+        int randomNumber = Random.Range(1, totalTemplateWeight + 1);
         int pos = 0;
-        for (int i = 0; i < choices.Count; i++)
+        for (int i = 0; i < templateChoices.Count; i++)
         {
-            if (randomNumber <= choices[i].weight + pos)
+            if (randomNumber <= templateChoices[i].weight + pos)
             {
-                return choices[i];
+                return templateChoices[i];
             }
-            pos += choices[i].weight;
+            pos += templateChoices[i].weight;
         }
-        Debug.Log("nothing to choose from");
+        Debug.Log("nothing to choose from 1");
         return null;
     }
-    
+    Choice ChooseWalltypes()
+    {
+        int randomNumber = Random.Range(1, totalWallTypeWeight + 1);
+        int pos = 0;
+        for (int i = 0; i < wallTypeChoices.Count; i++)
+        {
+            if (randomNumber <= wallTypeChoices[i].weight + pos)
+            {
+                return wallTypeChoices[i];
+            }
+            pos += wallTypeChoices[i].weight;
+        }
+        Debug.Log("nothing to choose from 2");
+        return null;
+    }
+    Choice ChooseWallDecoration()
+    {
+        int randomNumber = Random.Range(1, totalWallDecWeight + 1);
+        int pos = 0;
+        for (int i = 0; i < wallDecoration.Count; i++)
+        {
+            if (randomNumber <= wallDecoration[i].weight + pos)
+            {
+                return wallDecoration[i];
+            }
+            pos += wallDecoration[i].weight;
+        }
+        Debug.Log("nothing to choose from 3");
+        return null;
+    }
+    Choice ChooseFloorDecoration()
+    {
+        int randomNumber = Random.Range(1, totalFloorDecWeight + 1);
+        int pos = 0;
+        for (int i = 0; i < floorDecorationChoices.Count; i++)
+        {
+            if (randomNumber <= floorDecorationChoices[i].weight + pos)
+            {
+                return floorDecorationChoices[i];
+            }
+            pos += floorDecorationChoices[i].weight;
+        }
+        Debug.Log("nothing to choose from 4");
+        return null;
+    }
+
 
 
 }
