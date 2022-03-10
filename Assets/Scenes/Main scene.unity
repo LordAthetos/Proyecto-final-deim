@@ -341,17 +341,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   WallObjects:
-  - {fileID: 7648346428533582794, guid: dcba15e45124aa84987cbf6ffed7cb6b, type: 3}
-  - {fileID: 2437191358732504657, guid: 84bf2d8aaa6a4fb41bb093b28a406773, type: 3}
-  - {fileID: 2437191358732504657, guid: ec30a2e4fcf1c0e43a749ccd5b2b428f, type: 3}
-  - {fileID: 7648346428533582794, guid: dcba15e45124aa84987cbf6ffed7cb6b, type: 3}
-  - {fileID: 7648346428533582794, guid: dcba15e45124aa84987cbf6ffed7cb6b, type: 3}
-  - {fileID: 7648346428533582794, guid: dcba15e45124aa84987cbf6ffed7cb6b, type: 3}
-  - {fileID: 7648346428533582794, guid: dcba15e45124aa84987cbf6ffed7cb6b, type: 3}
-  - {fileID: 7648346428533582794, guid: dcba15e45124aa84987cbf6ffed7cb6b, type: 3}
-  BaseFloor_prefab: {fileID: 6335178709625695793, guid: 6209facf2aa275a44b76b8007c151ac3, type: 3}
-  BaseFloor_perimeter: {fileID: 6335178709625695793, guid: 9358eeaba9df4b24a88b790d4cf043f3, type: 3}
-  BaseFloor_corner: {fileID: 6335178709625695793, guid: 3154867fd14dabe46b272f70937f1ee2, type: 3}
+  - {fileID: 7648346428533582794, guid: 8e3ec23ff4c3eee4a8e03e9c39096ad0, type: 3}
+  - {fileID: 1681226754750348389, guid: 77bb9825d434e9a46a9ba8ad0b7b812d, type: 3}
+  - {fileID: 9116424011231094545, guid: 95dfce60c6a55614cb800cafca20db9a, type: 3}
+  - {fileID: 7989827262589266040, guid: 5576580363d2b4349b99420b64dd0c1d, type: 3}
+  - {fileID: 7648346428533582794, guid: fc0d97b374d7b0d4f9dc8484d6b00569, type: 3}
+  - {fileID: 9116424011231094545, guid: 73bbd8dc9886d0f45829c158ef406015, type: 3}
+  - {fileID: 9116424011231094545, guid: 81024d8ecddd98247a2ac85ec9566280, type: 3}
+  - {fileID: 9116424011231094545, guid: bf0caf1aaad68fd4397af95879c7510b, type: 3}
+  - {fileID: 7120838012939246880, guid: 9099888d72b75004c9187795e5b72e86, type: 3}
+  FloorObjects:
+  - {fileID: 2898736559646836952, guid: e8db112148c9262459a555523a85ba58, type: 3}
+  - {fileID: 8257007098960144728, guid: 999347c407de9774a9ed397281297707, type: 3}
+  - {fileID: 309472396868327199, guid: 2d913ece4a380ce4cbdc43f5e6b779d0, type: 3}
+  BaseFloor_prefab: {fileID: 2898736559646836952, guid: e8db112148c9262459a555523a85ba58, type: 3}
+  BaseFloor_perimeter: {fileID: 2898736559646836952, guid: e8db112148c9262459a555523a85ba58, type: 3}
+  BaseFloor_corner: {fileID: 2898736559646836952, guid: e8db112148c9262459a555523a85ba58, type: 3}
   Debugger: {fileID: 7648346428533582794, guid: 8e3ec23ff4c3eee4a8e03e9c39096ad0, type: 3}
   isCompound: 1
   maxNumDoors: 5

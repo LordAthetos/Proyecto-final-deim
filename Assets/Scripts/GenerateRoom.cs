@@ -36,7 +36,7 @@ public class GenerateRoom : MonoBehaviour
 
     // Objectos para las paredes 
     public GameObject[] WallObjects;
-
+    public GameObject[] FloorObjects;
 
 
     public GameObject BaseFloor_prefab;
@@ -81,28 +81,31 @@ public class GenerateRoom : MonoBehaviour
     // west = 2
     // north = 3
     int[][] wallValue = new int[4][]{
-        new int[10]{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        new int[10]{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        new int[10]{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        new int[10]{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+        new int[10],
+        new int[10],
+        new int[10],
+        new int[10]
     };
-    int[][] checkAdjacent = new int[4][]{
+    int[][] checkMaxNum = new int[4][]{
         new int[10],
         new int[10],
         new int[10],
         new int[10]
     };
 
+    int[] xValues = new int[10];
+    int[] zValues = new int[10];
+
     Choice selectedChoice;
 
     // Start is called before the first frame update
     void Start()
     {
-
+        
         // General Template 
-        templateChoices.Add(new Choice("wall", 1, 25));
-        templateChoices.Add(new Choice("door", 2, 25));
-        templateChoices.Add(new Choice("space", 3, 50));
+        templateChoices.Add(new Choice("puerta entre habitacion", 2, 5));
+        templateChoices.Add(new Choice("vacio", 3, 20));
+        templateChoices.Add(new Choice("estrechamiento", 4, 40));
         foreach (Choice entry in templateChoices)
         {
             totalTemplateWeight += entry.weight;
@@ -116,19 +119,18 @@ public class GenerateRoom : MonoBehaviour
         }
         // Wall Decoration
         wallDecoration.Add(new Choice("SWall", 2, 50));
-        wallDecoration.Add(new Choice("Graffitti_1", 3, 5));
-        wallDecoration.Add(new Choice("Graffitti_2", 4, 5));
-        wallDecoration.Add(new Choice("Poster_1", 5, 5));
-        wallDecoration.Add(new Choice("Poster_2", 6, 5));
-        wallDecoration.Add(new Choice("Wall_crack", 7, 5));
+        wallDecoration.Add(new Choice("Graffitti_1", 5, 5));
+        wallDecoration.Add(new Choice("Graffitti_2", 6, 5));
+        wallDecoration.Add(new Choice("Graffitti_3", 7, 5));
+        wallDecoration.Add(new Choice("Wall_crack", 8, 5));
         foreach (Choice entry in wallDecoration)
         {
             totalWallDecWeight += entry.weight;
         }
         // Floor Decoration
-        floorDecorationChoices.Add(new Choice("Floor", 1, 100));
-        floorDecorationChoices.Add(new Choice("Trapdoor", 2, 5));
-        floorDecorationChoices.Add(new Choice("Generator", 3, 2));
+        floorDecorationChoices.Add(new Choice("Floor", 0, 200));
+        floorDecorationChoices.Add(new Choice("Trapdoor", 1, 5));
+        floorDecorationChoices.Add(new Choice("Generator", 2, 2));
         foreach (Choice entry in floorDecorationChoices)
         {
             totalFloorDecWeight += entry.weight;
@@ -136,6 +138,7 @@ public class GenerateRoom : MonoBehaviour
 
 
         DefineParameters();
+
         GenerateTemplate();
         for (int sectionCounter = 0; sectionCounter <= numSections; sectionCounter += 1)
         {
@@ -166,9 +169,9 @@ public class GenerateRoom : MonoBehaviour
         Vector3 checkPZ;
         Vector3 checkNX;
         Vector3 checkNZ;
+
         bool isAdjacent = false;
         bool notRepeated = false;
-
 
 
         for (int sectionCounter = 1; sectionCounter <= numSections; sectionCounter += 1)
@@ -177,27 +180,29 @@ public class GenerateRoom : MonoBehaviour
             {
                 currentTile = new Vector3(Random.Range(-templateRange, templateRange), 0, Random.Range(-templateRange, templateRange));
                 notRepeated = false;
+                isAdjacent = false;
+                checkPX = new Vector3(currentTile.x - 1, currentTile.y, currentTile.z);
+                checkPZ = new Vector3(currentTile.x, currentTile.y, currentTile.z - 1);
+                checkNX = new Vector3(currentTile.x + 1, currentTile.y, currentTile.z);
+                checkNZ = new Vector3(currentTile.x, currentTile.y, currentTile.z + 1);
+
                 //+x 
-                adjacentOperator = new Vector3(currentTile.x + 1, 0, currentTile.z);
-                if (sectionCoordinates.Contains(adjacentOperator))
+                if (sectionCoordinates.Contains(checkPX))
                 {
                     isAdjacent = true;
                 }
                 //+z 
-                adjacentOperator = new Vector3(currentTile.x, 0, currentTile.z + 1);
-                if (sectionCoordinates.Contains(adjacentOperator))
+                if (sectionCoordinates.Contains(checkPZ))
                 {
                     isAdjacent = true;
                 }
                 //-x 
-                adjacentOperator = new Vector3(currentTile.x - 1, 0, currentTile.z);
-                if (sectionCoordinates.Contains(adjacentOperator))
+                if (sectionCoordinates.Contains(checkNX))
                 {
                     isAdjacent = true;
                 }
                 //-z 
-                adjacentOperator = new Vector3(currentTile.x, 0, currentTile.z - 1);
-                if (sectionCoordinates.Contains(adjacentOperator))
+                if (sectionCoordinates.Contains(checkNZ))
                 {
                     isAdjacent = true;
                 }
@@ -209,13 +214,28 @@ public class GenerateRoom : MonoBehaviour
 
             }
             sectionCoordinates[sectionCounter] = new Vector3(currentTile.x, currentTile.y, currentTile.z);
+            xValues[sectionCounter] = (int)currentTile.x;
+            zValues[sectionCounter] = (int)currentTile.z;
             templateFloor = Instantiate(BaseFloor_prefab, currentTile, Quaternion.identity);
             templateFloor.tag = "Template";
             isAdjacent = false;
             notRepeated = false;
 
         }
-        
+        int maxX = xValues.Max();
+        Debug.Log($"Max X is {maxX}");
+        int minX = xValues.Min();
+        Debug.Log($"Min X is {minX}");
+        int maxZ = zValues.Max();
+        Debug.Log($"Max Z is {maxZ}");
+        int minZ = zValues.Min();
+        Debug.Log($"Min Z is {minZ}");
+
+        bool eastDoorBuilt = false;
+        bool southDoorBuilt = false;
+        bool westDoorBuilt = false;
+        bool northDoorBuilt = false;
+
         for (int sectionCounter = 0; sectionCounter <= numSections; sectionCounter += 1)
         {
 
@@ -226,24 +246,85 @@ public class GenerateRoom : MonoBehaviour
             checkNX = new Vector3(currentTile.x +1, currentTile.y, currentTile.z); 
             checkNZ = new Vector3(currentTile.x, currentTile.y, currentTile.z +1); 
 
-            //Debug.Log($"tile number {sectionCounter} is: {currentTile}");
-            //Debug.Log($"Px from {sectionCounter} is: {checkPX}");
-            //Debug.Log($"Pz from {sectionCounter} is: {checkPZ}");
-            //Debug.Log($"Nx from {sectionCounter} is: {checkNX}");
-            //Debug.Log($"Nz from {sectionCounter} is: {checkNZ}");
-
             if (sectionCoordinates.Contains(checkPX))
             {
                 //Debug.Log($"Px from {sectionCounter} is: positive");
-                wallValue[0][sectionCounter] = 1;
+                selectedChoice = ChooseTemplate();
+                wallValue[0][sectionCounter] = selectedChoice.choiceID;
+            }
+            else
+            {
+                if (!eastDoorBuilt && currentTile.x == minX)
+                {
+                    wallValue[0][sectionCounter] = 1;
+                    eastDoorBuilt = true;
+                }
+                else
+                {
+                    wallValue[0][sectionCounter] = 0;
+                }
+                
+            }
+            if (sectionCoordinates.Contains(checkPZ))
+            {
+                //Debug.Log($"Pz from {sectionCounter} is: positive");
+                selectedChoice = ChooseTemplate();
+                wallValue[1][sectionCounter] = selectedChoice.choiceID;
 
             }
             else
             {
-                //Debug.Log($"Px from {sectionCounter} is: negative");
-                wallValue[0][sectionCounter] = 0;
+                if (!southDoorBuilt && currentTile.z == minZ)
+                {
+                    wallValue[1][sectionCounter] = 1;
+                    southDoorBuilt = true;
+                }
+                else
+                {
+                    wallValue[1][sectionCounter] = 0;
+                }
+                
             }
+            if (sectionCoordinates.Contains(checkNX))
+            {
+                //Debug.Log($"Nx from {sectionCounter} is: positive");
+                selectedChoice = ChooseTemplate();
+                wallValue[2][sectionCounter] = selectedChoice.choiceID;
 
+            }
+            else
+            {
+                if (!westDoorBuilt && currentTile.x == maxX)
+                {
+                    wallValue[2][sectionCounter] = 1;
+                    westDoorBuilt = true;
+                }
+                else
+                {
+                    wallValue[2][sectionCounter] = 0; 
+                }
+                
+            }
+            if (sectionCoordinates.Contains(checkNZ))
+            {
+                //Debug.Log($"Nx from {sectionCounter} is: positive");
+                selectedChoice = ChooseTemplate();
+                wallValue[3][sectionCounter] = selectedChoice.choiceID;
+
+            }
+            else
+            {
+                if (!northDoorBuilt && currentTile.z == maxZ)
+                {
+                    wallValue[3][sectionCounter] = 1;
+                    northDoorBuilt = true;
+                }
+                else
+                {
+                    wallValue[3][sectionCounter] = 0;
+                }
+                
+            }
         }
 
     }
@@ -263,34 +344,59 @@ public class GenerateRoom : MonoBehaviour
         List<GameObject> eastPerimeter = new List<GameObject>();
         List<GameObject> westPerimeter = new List<GameObject>();
 
-        Vector3 moveToTemplate = new Vector3(0, 0, 0);
+        Vector3 moveToTemplate = Vector3.zero;
+        Vector3 Rotation0 = new Vector3(0, 0, 0);
+        Vector3 Rotation90 = new Vector3(0, 90, 0);
+        Vector3 Rotation180 = new Vector3(0, 180, 0);
+        Vector3 Rotation270 = new Vector3(0, 270, 0);
+        Vector3 RotationVector = Vector3.zero;
+
+        int randomRotation;
 
         // Genera una cuadricula de prefabs de suelo, la taggea segun las propiedades y la emparenta a un nuevo game object root
         GameObject FloorSection = new GameObject($"FloorSectionRoot{sectionNumber}");
-        offset = new Vector3(roomSizeX / 2, 0, roomSizeZ / 2);
+        offset = new Vector3(roomSizeX / 2 +1, 0, roomSizeZ / 2 +1);
         int wallcenterX = (int)offset.x;
         int wallcenterZ = (int)offset.z;
-        Debug.Log($"offset is:{offset}");
-        //offset = Vector3.zero;
+        
+        
         for (int i = 0; i < roomSizeX; i++)
         {
             for (int j = 0; j < roomSizeZ; j++)
             {
+                randomRotation = (Random.Range(0, 4));
+                switch (randomRotation)
+                {
+                    case 0:
+                        RotationVector = Rotation0;
+                        break;
+                    case 1:
+                        RotationVector = Rotation90;
+                        break;
+                    case 2:
+                        RotationVector = Rotation180;
+                        break;
+                    case 3:
+                        RotationVector = Rotation270;
+                        break;
+                }
                 // comprovacion de si el suelo que va a generar es perimetro o esquina
                 if (i == 0 || j == 0 || i == roomSizeX - 1 || j == roomSizeZ - 1)
                 {
                     if (i == 0 && j == 0 || i == 0 && j == roomSizeZ - 1 || i == roomSizeX - 1 && j == 0 || i == roomSizeX - 1 && j == roomSizeZ - 1)
                     {
-                        baseFloor = Instantiate(BaseFloor_corner, new Vector3(i, 0f, j), Quaternion.identity);
+                        baseFloor = Instantiate(FloorObjects[0], new Vector3(i, 0f, j), Quaternion.identity);
                         baseFloor.transform.position = new Vector3(baseFloor.transform.position.x, baseFloor.transform.position.y, baseFloor.transform.position.z) - offset;
+                        baseFloor.transform.Rotate(RotationVector);
                         baseFloor.transform.SetParent(FloorSection.transform);
                         baseFloor.tag = "FloorPerimeterCorner";
 
                     }
                     else
                     {
-                        baseFloor = Instantiate(BaseFloor_perimeter, new Vector3(i, 0f, j), Quaternion.identity);
+                        baseFloor = Instantiate(FloorObjects[0], new Vector3(i, 0f, j), Quaternion.identity);
                         baseFloor.transform.position = new Vector3(baseFloor.transform.position.x, baseFloor.transform.position.y, baseFloor.transform.position.z) - offset;
+                        baseFloor.transform.Rotate(RotationVector);
                         baseFloor.transform.SetParent(FloorSection.transform);
                         baseFloor.tag = "FloorPerimeter";
                         
@@ -299,8 +405,10 @@ public class GenerateRoom : MonoBehaviour
                 }
                 else
                 {
-                    baseFloor = Instantiate(BaseFloor_prefab, new Vector3(i, 0f, j), Quaternion.identity);
+                    selectedChoice = ChooseFloorDecoration();
+                    baseFloor = Instantiate(FloorObjects[selectedChoice.choiceID], new Vector3(i, 0f, j), Quaternion.identity);
                     baseFloor.transform.position = new Vector3(baseFloor.transform.position.x, baseFloor.transform.position.y, baseFloor.transform.position.z) - offset;
+                    baseFloor.transform.Rotate(RotationVector);
                     baseFloor.transform.SetParent(FloorSection.transform);
                     baseFloor.tag = "Floor";
                 }
@@ -308,104 +416,146 @@ public class GenerateRoom : MonoBehaviour
         }
 
         eastWall = wallValue[0][sectionNumber];
-        Debug.Log($"east: {eastWall}");
-        //Instantiate(Debugger, new Vector3(i, 0, j), Quaternion.identity);
-        GenerateWall(wallcenterX, eastWall, roomSizeZ, roomSizeY, roomSizeX / 2, 0, FloorSection, offset);
+        GenerateWall(eastWall, roomSizeZ, roomSizeY, roomSizeX / 2 +1, 0, FloorSection);
+
+        southWall = wallValue[1][sectionNumber];
+        GenerateWall(southWall, roomSizeX, roomSizeY, roomSizeZ / 2 + 1, 1, FloorSection);
+
+        westWall = wallValue[2][sectionNumber];
+        GenerateWall(westWall, roomSizeZ, roomSizeY, roomSizeX / 2 + 1, 2, FloorSection);
+
+        northWall = wallValue[3][sectionNumber];
+        GenerateWall(northWall, roomSizeX, roomSizeY, roomSizeZ / 2 + 1, 3, FloorSection);
+
+
 
         moveToTemplate = sectionCoordinates[sectionNumber];
-        FloorSection.transform.position = new Vector3(moveToTemplate.x * roomSizeX, 0, moveToTemplate.z * roomSizeZ);
+        FloorSection.transform.position = new Vector3(moveToTemplate.x * roomSizeX, 0 +1, moveToTemplate.z * roomSizeZ);
 
     }
 
-    public void GenerateWall(int wallCenter, int wallType, int wallLenght, int wallHeigh, int wallOffset, int direction, GameObject sectionParent, Vector3 dirOffset)
+    public void GenerateWall(int wallType, int wallLenght, int wallHeigh, int wallOffset, int direction, GameObject sectionParent)
     {
-        //Debug.Log($"");
-        Debug.Log($"WallCenter = {wallCenter}");
-        Debug.Log($"WallLenght = {wallLenght}");
-        Vector3 dirMult = Vector3.zero;
+        Vector3 dirVector = Vector3.zero;
+        Vector3 dirOffset = Vector3.zero;
+        Vector3 rotVector = Vector3.zero;
+        
         switch (direction)
         {
             case 0:
-                dirMult = Vector3.forward;
+                dirVector = Vector3.forward;
+                dirOffset = -offset;
+                rotVector = Vector3.zero;
                 break;
             case 1:
-                dirMult = Vector3.back;
+                dirVector = Vector3.right;
+                dirOffset = -offset;
+                rotVector = new Vector3(0, 270, 0);
                 break;
             case 2:
-                dirMult = Vector3.right;
+                dirVector = Vector3.back;
+                dirOffset = new Vector3(offset.x -2, offset.y, offset.z -2);
+                rotVector = new Vector3(0, 180, 0);
                 break;
             case 3:
-                dirMult = Vector3.forward;
+                dirVector = Vector3.left;
+                dirOffset = new Vector3(offset.x -2, offset.y, offset.z -2);
+                rotVector = new Vector3(0, 90, 0);
                 break;
         }
-
-        switch (wallType)
-        {
-            case 0:     //Perimetro
-                GeneratePerimeter(wallCenter, wallLenght, wallHeigh, wallOffset, direction, dirMult, false, sectionParent, dirOffset);
-                break;
-            case 1:     //Pared entre seccion
-                //GeneratePerimeter(wallCenter, wallLenght, wallHeigh, wallOffset, direction, dirMult, false, sectionParent,  dirOffset);
-                break;
-            case 2:     //Puerta entre seccion
-                //GeneratePerimeter(wallCenter, wallLenght, wallHeigh, wallOffset, direction, dirMult, false, sectionParent,  dirOffset);
-                break;
-            case 3:     //Vacio
-                //GeneratePerimeter(wallCenter, wallLenght, wallHeigh, wallOffset, direction, dirMult, false, sectionParent,  dirOffset);
-                break;
-            case 4:     //Puerta entre habitacion
-                //GeneratePerimeter(wallCenter, wallLenght, wallHeigh, wallOffset, direction, dirMult, false, sectionParent, dirOffset);
-                break;
-        }
-    }
-
-    // Funciones para diferentes tipos de muros
-
-    public void GeneratePerimeter(int wallCenter, int wallLenght, int wallHeigh, int wallOffset, int direction, Vector3 dirVector, bool hasDoor, GameObject sectionParent, Vector3 dirOffset)
-    {
-        // [0] Puerta/Root;  [1] Pared normal;  [2] 
-        //construir paredes
         
-        int startPos = wallCenter - (wallLenght / 2);
+        int startPos = 0;
         int endPos = startPos + wallLenght;
-        Debug.Log($"StartPos = {startPos}");
+        int wallCenter = endPos / 2 + 1;
         
+
         int currentWallStrip = 0;
         int currentWall = 0;
-        Debug.Log("Wall  G E N E R A T E D");
-        //bool hasDoorBeenBuilt = false;
+
+        int wallHole = Random.Range(wallLenght / 2, wallLenght);
+        int wallHoleCenter = wallHole / 2 + 1;
+        int wallHoleStart = wallHoleCenter - (wallHole / 2);
+        int wallHoleEnd = wallHoleCenter + (wallHole / 2);
+
         for (int i = startPos; i < endPos; i++)
         {
-            if (i == wallCenter && hasDoor)
+            switch (wallType)
             {
-                currentWallStrip = 0;
-            }
-            else
-            {
-                selectedChoice = ChooseWalltypes();
-                //Debug.Log($"{selectedChoice.choiceName} {selectedChoice.choiceID}");
-                currentWallStrip = selectedChoice.choiceID;
+                case 0:     //Perimetro
+                    selectedChoice = ChooseWalltypes();
+                    currentWallStrip = selectedChoice.choiceID;
+                    break;
+
+                case 1:     //Puerta perimetro
+                    if (i == wallCenter)
+                    {
+                        currentWallStrip = 0;
+                    }
+                    else
+                    {
+                        selectedChoice = ChooseWalltypes();
+                        currentWallStrip = selectedChoice.choiceID;
+                    }
+                    break;
+
+                case 2:     //Puerta entre habitacion
+                    if (i == wallCenter)
+                    {
+                        currentWallStrip = 4;
+                    }
+                    else
+                    {
+                        selectedChoice = ChooseWalltypes();
+                        currentWallStrip = selectedChoice.choiceID;
+                    }
+                    break;
+
+                case 3:     //Vacio
+                    currentWallStrip = 3;
+                    break;
+
+                case 4:     // estrechamiento
+                    if (i >= wallHoleStart && i <= wallHoleEnd)
+                    {
+                        currentWallStrip = 3;
+                    }
+                    else
+                    {
+                        currentWallStrip = 1;
+                    }
+                    break;
             }
 
             for (int h = 0; h < wallHeigh; h++)
             {
                 switch (currentWallStrip)
                 {
-                    case 0: // puerta
-                        currentWall = 2;
+                    case 0:     // puerta
+                        currentWall = 0;
+                        currentWallStrip = 1;
                         break;
-                    case 1: // pared 
+
+                    case 1:     // pared 
                         selectedChoice = ChooseWallDecoration();
                         currentWall = selectedChoice.choiceID;
-
                         break;
-                    case 2: // ventana 
+
+                    case 2:     // ventana 
                         currentWall = 1;
                         break;
-                }
 
+                    case 3:     // vacio
+                        currentWall = 3;
+                        break;
+
+                    case 4:     // puerta interior
+                        currentWall = 4;
+                        currentWallStrip = 1;
+                        break;
+                }
                 wall = Instantiate(WallObjects[currentWall], new Vector3(dirVector.x * i, h, dirVector.z * i), Quaternion.identity);
-                wall.transform.position = new Vector3(wall.transform.position.x, wall.transform.position.y, wall.transform.position.z);
+                wall.transform.position = new Vector3(wall.transform.position.x, wall.transform.position.y, wall.transform.position.z) + dirOffset;
+                wall.transform.Rotate(rotVector);
                 wall.transform.SetParent(sectionParent.transform);
                 //instantiate current wall
 
@@ -416,8 +566,11 @@ public class GenerateRoom : MonoBehaviour
 
         }
 
-    }
 
+
+
+
+    }
 
     Choice ChooseTemplate()
     {
