@@ -7,11 +7,12 @@ public class DoorScript : MonoBehaviour
     public int room;
     public float rotation;
     public int doorDirection;
-    
+    private GameManager gameManagerScript;
 
     // Start is called before the first frame update
     void Start()
     {
+        gameManagerScript = FindObjectOfType<GameManager>();
         room = GameManager.currentRoomNumber -1;
         rotation = gameObject.transform.rotation.eulerAngles.y;
         switch (rotation)
@@ -34,6 +35,7 @@ public class DoorScript : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        gameManagerScript.HasPlayerCrossed(room, doorDirection);
         Debug.Log($"puerta {doorDirection} de habitacion {room} ha sido activada");
     }
 

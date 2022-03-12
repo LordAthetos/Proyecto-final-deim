@@ -26,6 +26,12 @@ public class GameManager : MonoBehaviour
         new int[64],
         new int[64]
     };
+    private bool[][] isPopulated = new bool[4][]{
+        new bool[64],
+        new bool[64],
+        new bool[64],
+        new bool[64]
+    };
 
     public static int currentRoomNumber = 0;
     
@@ -65,18 +71,22 @@ public class GameManager : MonoBehaviour
             AttachRoom(0, 1, 0);
             adjacentRooms[0][0] = 1;
             roomPriority[adjacentRooms[0][0]] = 1;
+            isPopulated[0][0] = true;
 
             AttachRoom(0, 2, 1);
             adjacentRooms[0][1] = 2;
             roomPriority[adjacentRooms[0][1]] = 1;
+            isPopulated[0][1] = true;
 
             AttachRoom(0, 3, 2);
             adjacentRooms[0][2] = 3;
             roomPriority[adjacentRooms[0][2]] = 1;
+            isPopulated[0][2] = true;
 
             AttachRoom(0, 4, 3);
             adjacentRooms[0][3] = 4;
             roomPriority[adjacentRooms[0][3]] = 1;
+            isPopulated[0][3] = true;
 
         }
     }
@@ -107,6 +117,7 @@ public class GameManager : MonoBehaviour
     }
     public void HasPlayerCrossed(int roomID, int doorID)
     {
+        /*
         if (playerCurrentRoom == roomID)
         {
             // falsa alarma
@@ -114,7 +125,45 @@ public class GameManager : MonoBehaviour
         else
         {
             playerCurrentRoom = roomID;
+            if (isPopulated[roomID][0])
+            {
+                //adjacentRooms[roomID][0]
+            }
+            else
+            {
+                SpawnRoom();
+                AttachRoom(roomID, currentRoomNumber - 1, 0);
+            }
+            if (isPopulated[roomID][1])
+            {
+                //adjacentRooms[roomID][0]
+            }
+            else
+            {
+                SpawnRoom();
+                AttachRoom(roomID, currentRoomNumber - 1, 1);
+            }
+            if (isPopulated[roomID][2])
+            {
+                //adjacentRooms[roomID][0]
+            }
+            else
+            {
+                SpawnRoom();
+                AttachRoom(roomID, currentRoomNumber - 1, 2);
+            }
+            if (isPopulated[roomID][3])
+            {
+                //adjacentRooms[roomID][0]
+            }
+            else
+            {
+                SpawnRoom();
+                AttachRoom(roomID, currentRoomNumber - 1, 3);
+            }
+            
         }
+        */
     }
     public void RoomSwap()
     {

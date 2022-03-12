@@ -18,38 +18,36 @@ public class PlayerController : MonoBehaviour
 
     public TextMeshProUGUI energyText;
     private SceneFlow sceneFlow;
+    
 
     private void Awake()
     {
         playerRigidbody = GetComponent<Rigidbody>();
         animator = GetComponentInChildren<Animator>();
+        sceneFlow = FindObjectOfType<SceneFlow>();
     }
 
     void Update()
     {
-        if (!isGameOver)
+        playerEnergy = playerEnergy - decaySpeed;
+        energyText.text = $"Energy: {playerEnergy}";
+        float horizontalInput = Input.GetAxis("Horizontal");
+        float verticalInput = Input.GetAxis("Vertical");
+        speedVector = new Vector3(horizontalInput * speed, playerRigidbody.velocity.y, verticalInput * speed);
+        speedVector = Quaternion.Euler(0, 45, 0) * speedVector;
+        playerRigidbody.velocity = speedVector;
+        if (horizontalInput == 0 && verticalInput == 0)
         {
-            playerEnergy = playerEnergy - decaySpeed;
-            energyText.text = $"Energy: {playerEnergy}";
-            float horizontalInput = Input.GetAxis("Horizontal");
-            float verticalInput = Input.GetAxis("Vertical");
-            speedVector = new Vector3(horizontalInput * speed, playerRigidbody.velocity.y, verticalInput * speed);
-            speedVector = Quaternion.Euler(0, 45, 0) * speedVector;
-            playerRigidbody.velocity = speedVector;
-            if (horizontalInput == 0 && verticalInput == 0)
-            {
-                animator.SetBool("IsRunning", false);
-            }
-            else
-            {
-                animator.SetBool("IsRunning", true);
-            }
-
+            animator.SetBool("IsRunning", false);
+        }
+        else
+        {
+            animator.SetBool("IsRunning", true);
         }
         if (playerEnergy < 0)
         {
-            isGameOver = true;
             sceneFlow.ChangeGameOver();
+
         }
         
     }
