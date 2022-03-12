@@ -1,1 +1,1 @@
-el codigo del GameManager que se encarga de cambiar habitaciones de sitio no esta terminado, lo actualizare nada mas este. 
+el codigo del GameManager que se encarga de cambiar habitaciones de sitio no esta terminado, genera habitaciones y las puede colocar pero el sistema que las cambia de sitio segun la posicion del jugador no funciona bien. 
