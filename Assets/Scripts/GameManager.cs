@@ -20,6 +20,13 @@ public class GameManager : MonoBehaviour
         new Vector3[64],
         new Vector3[64]
     };
+    private int[][] adjacentRooms = new int[4][]{
+        new int[64],
+        new int[64],
+        new int[64],
+        new int[64]
+    };
+
     public static int currentRoomNumber = 0;
     
     public GameObject Room;
@@ -56,9 +63,20 @@ public class GameManager : MonoBehaviour
         {
             initialSpawn = true;
             AttachRoom(0, 1, 0);
+            adjacentRooms[0][0] = 1;
+            roomPriority[adjacentRooms[0][0]] = 1;
+
             AttachRoom(0, 2, 1);
+            adjacentRooms[0][1] = 2;
+            roomPriority[adjacentRooms[0][1]] = 1;
+
             AttachRoom(0, 3, 2);
+            adjacentRooms[0][2] = 3;
+            roomPriority[adjacentRooms[0][2]] = 1;
+
             AttachRoom(0, 4, 3);
+            adjacentRooms[0][3] = 4;
+            roomPriority[adjacentRooms[0][3]] = 1;
 
         }
     }
