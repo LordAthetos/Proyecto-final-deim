@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2170911664761635714
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2170911664761635716}
+  - component: {fileID: 2170911664761635715}
+  m_Layer: 0
+  m_Name: Room
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2170911664761635716
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2170911664761635714}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2170911664761635715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2170911664761635714}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28b316dec5fd4934a8cd54ea62fcb8a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WallObjects:
+  - {fileID: 8994900343042530633, guid: 45d86e7952bdada409fb9af6cb371043, type: 3}
+  - {fileID: 1681226754750348389, guid: 77bb9825d434e9a46a9ba8ad0b7b812d, type: 3}
+  - {fileID: 9116424011231094545, guid: 95dfce60c6a55614cb800cafca20db9a, type: 3}
+  - {fileID: 7989827262589266040, guid: 5576580363d2b4349b99420b64dd0c1d, type: 3}
+  - {fileID: 8994900343042530633, guid: 56328b321ff28964693db512524afc11, type: 3}
+  - {fileID: 9116424011231094545, guid: 73bbd8dc9886d0f45829c158ef406015, type: 3}
+  - {fileID: 9116424011231094545, guid: 81024d8ecddd98247a2ac85ec9566280, type: 3}
+  - {fileID: 9116424011231094545, guid: bf0caf1aaad68fd4397af95879c7510b, type: 3}
+  - {fileID: 7120838012939246880, guid: 9099888d72b75004c9187795e5b72e86, type: 3}
+  FloorObjects:
+  - {fileID: 2898736559646836952, guid: e8db112148c9262459a555523a85ba58, type: 3}
+  - {fileID: 8257007098960144728, guid: 999347c407de9774a9ed397281297707, type: 3}
+  - {fileID: 309472396868327199, guid: 2d913ece4a380ce4cbdc43f5e6b779d0, type: 3}
+  BaseFloor_prefab: {fileID: 2898736559646836952, guid: e8db112148c9262459a555523a85ba58, type: 3}
+  BaseFloor_perimeter: {fileID: 2898736559646836952, guid: e8db112148c9262459a555523a85ba58, type: 3}
+  BaseFloor_corner: {fileID: 2898736559646836952, guid: e8db112148c9262459a555523a85ba58, type: 3}
+  Debugger: {fileID: 7648346428533582794, guid: 8e3ec23ff4c3eee4a8e03e9c39096ad0, type: 3}
+  isCompound: 1
+  maxNumDoors: 5
+  minNumDoors: 2
+  templateRange: 3
+  roomSizeX: 0
+  roomSizeZ: 0
+  roomSizeY: 0
+  numDoors: 0
+  numSections: 0
+  sectionCoordinates:
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}

@@ -34,6 +34,10 @@ public class GenerateRoom : MonoBehaviour
 
 
 
+    private GameManager gameManagerScript;
+    public static int currentDirection = 0;
+
+
     // Objectos para las paredes 
     public GameObject[] WallObjects;
     public GameObject[] FloorObjects;
@@ -48,21 +52,9 @@ public class GenerateRoom : MonoBehaviour
     public GameObject Debugger;
 
     private GameObject templateFloor;
-
-    // Controla si la habitacion tendra mas de una seccion (TBI)
-    public bool isCompound = true;
-
-    // Parametros de habitacion
-    private int minSizeX = 3;
-    private int minSizeZ = 3;
-    private int maxSizeX = 7;
-    private int maxSizeZ = 7;
-    private int maxSizeY = 5;
-    public int maxNumDoors = 5;
-    public int minNumDoors = 2;
     private Vector3 offset;
-    private int maxNumSections = 9;
-    public int templateRange = 3;
+    // Parametros de habitacion
+    
 
     public int roomSizeX;
     public int roomSizeZ;
@@ -71,11 +63,19 @@ public class GenerateRoom : MonoBehaviour
     public int numSections;
 
     public Vector3[] sectionCoordinates = new Vector3[10];
-
+    Vector3[] roomData = new Vector3[4];
     private int currentWallID;
+    /*
+    int minSizeX = 3;
+    int minSizeZ = 3;
+    int maxSizeX = 7;
+    int maxSizeZ = 7;
+    int maxSizeY = 5;
+    int maxNumSections = 9;
+    
+    */
 
-
-
+    int templateRange = 3;
     // east = 0
     // south = 1
     // west = 2
@@ -101,61 +101,77 @@ public class GenerateRoom : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        gameManagerScript = FindObjectOfType<GameManager>();
+        int roomNumber = GameManager.currentRoomNumber;
+
+        int minSizeX = PlayerPrefs.GetInt("minSizeX");
         
+        int minSizeZ = PlayerPrefs.GetInt("maxSizeX");
+       
+        int maxSizeX = PlayerPrefs.GetInt("maxSizeY");
+        
+        int maxSizeZ = PlayerPrefs.GetInt("minSizeZ");
+        
+        int maxSizeY = PlayerPrefs.GetInt("maxSizeZ");
+        
+        int maxNumSections = PlayerPrefs.GetInt("maxNumSections");
+        
+        int templateRange = PlayerPrefs.GetInt("templateRange");
+        
+        roomSizeX = Random.Range(minSizeX, maxSizeX) * 2 - 1;
+        roomSizeZ = Random.Range(minSizeZ, maxSizeZ) * 2 - 1;
+        roomSizeY = Random.Range(2, maxSizeY);
+        numSections = Random.Range(1, maxNumSections);
+
         // General Template 
-        templateChoices.Add(new Choice("puerta entre habitacion", 2, 5));
-        templateChoices.Add(new Choice("vacio", 3, 20));
-        templateChoices.Add(new Choice("estrechamiento", 4, 40));
+        templateChoices.Add(new Choice("puerta entre habitacion", 2, PlayerPrefs.GetInt("doorBtRoomsWeight")));
+        templateChoices.Add(new Choice("vacio", 3, PlayerPrefs.GetInt("voidWeight")));
+        templateChoices.Add(new Choice("estrechamiento", 4, PlayerPrefs.GetInt("narrowingWeight")));
         foreach (Choice entry in templateChoices)
         {
             totalTemplateWeight += entry.weight;
         }
         // Vertical wall slice types
-        wallTypeChoices.Add(new Choice("SWall", 1, 100));
-        wallTypeChoices.Add(new Choice("Window", 2, 10));
+        wallTypeChoices.Add(new Choice("SWall", 1, PlayerPrefs.GetInt("sWallWeight")));
+        wallTypeChoices.Add(new Choice("Window", 2, PlayerPrefs.GetInt("window")));
         foreach (Choice entry in wallTypeChoices)
         {
             totalWallTypeWeight += entry.weight;
         }
         // Wall Decoration
-        wallDecoration.Add(new Choice("SWall", 2, 50));
-        wallDecoration.Add(new Choice("Graffitti_1", 5, 5));
-        wallDecoration.Add(new Choice("Graffitti_2", 6, 5));
-        wallDecoration.Add(new Choice("Graffitti_3", 7, 5));
-        wallDecoration.Add(new Choice("Wall_crack", 8, 5));
+        wallDecoration.Add(new Choice("SWall", 2, PlayerPrefs.GetInt("sWallDWeight")));
+        wallDecoration.Add(new Choice("Graffitti_1", 5, PlayerPrefs.GetInt("graffitti1Weight")));
+        wallDecoration.Add(new Choice("Graffitti_2", 6, PlayerPrefs.GetInt("graffitti2Weight")));
+        wallDecoration.Add(new Choice("Graffitti_3", 7, PlayerPrefs.GetInt("graffitti3Weight")));
+        wallDecoration.Add(new Choice("Wall_crack", 8, PlayerPrefs.GetInt("wallCrackWeight")));
         foreach (Choice entry in wallDecoration)
         {
             totalWallDecWeight += entry.weight;
         }
         // Floor Decoration
-        floorDecorationChoices.Add(new Choice("Floor", 0, 200));
-        floorDecorationChoices.Add(new Choice("Trapdoor", 1, 5));
-        floorDecorationChoices.Add(new Choice("Generator", 2, 2));
+        floorDecorationChoices.Add(new Choice("Floor", 0, PlayerPrefs.GetInt("sFloorWeight")));
+        floorDecorationChoices.Add(new Choice("Trapdoor", 1, PlayerPrefs.GetInt("trapdoorWeight")));
+        floorDecorationChoices.Add(new Choice("Generator", 2, PlayerPrefs.GetInt("generatorWeight")));
         foreach (Choice entry in floorDecorationChoices)
         {
             totalFloorDecWeight += entry.weight;
         }
 
-
-        DefineParameters();
+        
+        
 
         GenerateTemplate();
         for (int sectionCounter = 0; sectionCounter <= numSections; sectionCounter += 1)
         {
             GenerateFloor(sectionCounter);
         }
+        gameManagerScript.StoreRoomData(roomNumber, roomData);
+        
 
     }
 
-    // Genera numeros aleatorios segun los parametros maximos y minimos
-    public void DefineParameters()
-    {
-        roomSizeX = Random.Range(minSizeX, maxSizeX) * 2 - 1;
-        roomSizeZ = Random.Range(minSizeZ, maxSizeZ) * 2 - 1;
-        roomSizeY = Random.Range(2, maxSizeY);
-        numDoors = Random.Range(minNumDoors, maxNumDoors);
-        numSections = Random.Range(1, maxNumSections);
-    }
+    
+    
 
 
     void GenerateTemplate()
@@ -216,25 +232,28 @@ public class GenerateRoom : MonoBehaviour
             sectionCoordinates[sectionCounter] = new Vector3(currentTile.x, currentTile.y, currentTile.z);
             xValues[sectionCounter] = (int)currentTile.x;
             zValues[sectionCounter] = (int)currentTile.z;
-            templateFloor = Instantiate(BaseFloor_prefab, currentTile, Quaternion.identity);
-            templateFloor.tag = "Template";
             isAdjacent = false;
             notRepeated = false;
 
         }
         int maxX = xValues.Max();
-        Debug.Log($"Max X is {maxX}");
+        //Debug.Log($"Max X is {maxX}");
         int minX = xValues.Min();
-        Debug.Log($"Min X is {minX}");
+        //Debug.Log($"Min X is {minX}");
         int maxZ = zValues.Max();
-        Debug.Log($"Max Z is {maxZ}");
+        //Debug.Log($"Max Z is {maxZ}");
         int minZ = zValues.Min();
-        Debug.Log($"Min Z is {minZ}");
+        //Debug.Log($"Min Z is {minZ}");
 
         bool eastDoorBuilt = false;
         bool southDoorBuilt = false;
         bool westDoorBuilt = false;
         bool northDoorBuilt = false;
+
+        Vector3 eastDoorCoords;
+        Vector3 southDoorCoords;
+        Vector3 westDoorCoords;
+        Vector3 northDoorCoords;
 
         for (int sectionCounter = 0; sectionCounter <= numSections; sectionCounter += 1)
         {
@@ -248,7 +267,7 @@ public class GenerateRoom : MonoBehaviour
 
             if (sectionCoordinates.Contains(checkPX))
             {
-                //Debug.Log($"Px from {sectionCounter} is: positive");
+                
                 selectedChoice = ChooseTemplate();
                 wallValue[0][sectionCounter] = selectedChoice.choiceID;
             }
@@ -258,6 +277,9 @@ public class GenerateRoom : MonoBehaviour
                 {
                     wallValue[0][sectionCounter] = 1;
                     eastDoorBuilt = true;
+                    eastDoorCoords = new Vector3((currentTile.x * roomSizeX) - (roomSizeX / 2 + 1), currentTile.y +1, currentTile.z * roomSizeZ);
+                    roomData[0] = eastDoorCoords;
+
                 }
                 else
                 {
@@ -267,7 +289,7 @@ public class GenerateRoom : MonoBehaviour
             }
             if (sectionCoordinates.Contains(checkPZ))
             {
-                //Debug.Log($"Pz from {sectionCounter} is: positive");
+                
                 selectedChoice = ChooseTemplate();
                 wallValue[1][sectionCounter] = selectedChoice.choiceID;
 
@@ -278,6 +300,8 @@ public class GenerateRoom : MonoBehaviour
                 {
                     wallValue[1][sectionCounter] = 1;
                     southDoorBuilt = true;
+                    southDoorCoords = new Vector3(currentTile.x * roomSizeX, currentTile.y + 1, currentTile.z * roomSizeZ - (roomSizeZ / 2 + 1));
+                    roomData[1] = southDoorCoords;
                 }
                 else
                 {
@@ -287,7 +311,7 @@ public class GenerateRoom : MonoBehaviour
             }
             if (sectionCoordinates.Contains(checkNX))
             {
-                //Debug.Log($"Nx from {sectionCounter} is: positive");
+                
                 selectedChoice = ChooseTemplate();
                 wallValue[2][sectionCounter] = selectedChoice.choiceID;
 
@@ -298,6 +322,8 @@ public class GenerateRoom : MonoBehaviour
                 {
                     wallValue[2][sectionCounter] = 1;
                     westDoorBuilt = true;
+                    westDoorCoords = new Vector3((currentTile.x * roomSizeX) + (roomSizeX / 2 + 1) -2, currentTile.y + 1, currentTile.z * roomSizeZ);
+                    roomData[2] = westDoorCoords;
                 }
                 else
                 {
@@ -307,7 +333,7 @@ public class GenerateRoom : MonoBehaviour
             }
             if (sectionCoordinates.Contains(checkNZ))
             {
-                //Debug.Log($"Nx from {sectionCounter} is: positive");
+                
                 selectedChoice = ChooseTemplate();
                 wallValue[3][sectionCounter] = selectedChoice.choiceID;
 
@@ -318,6 +344,8 @@ public class GenerateRoom : MonoBehaviour
                 {
                     wallValue[3][sectionCounter] = 1;
                     northDoorBuilt = true;
+                    northDoorCoords = new Vector3(currentTile.x * roomSizeX -2, currentTile.y + 1, currentTile.z * roomSizeZ + (roomSizeZ / 2 + 1) -2);
+                    roomData[3] = northDoorCoords;
                 }
                 else
                 {
@@ -431,7 +459,7 @@ public class GenerateRoom : MonoBehaviour
 
         moveToTemplate = sectionCoordinates[sectionNumber];
         FloorSection.transform.position = new Vector3(moveToTemplate.x * roomSizeX, 0 +1, moveToTemplate.z * roomSizeZ);
-
+        FloorSection.transform.SetParent(gameObject.transform);
     }
 
     public void GenerateWall(int wallType, int wallLenght, int wallHeigh, int wallOffset, int direction, GameObject sectionParent)
@@ -446,21 +474,25 @@ public class GenerateRoom : MonoBehaviour
                 dirVector = Vector3.forward;
                 dirOffset = -offset;
                 rotVector = Vector3.zero;
+                
                 break;
             case 1:
                 dirVector = Vector3.right;
                 dirOffset = -offset;
                 rotVector = new Vector3(0, 270, 0);
+                
                 break;
             case 2:
                 dirVector = Vector3.back;
                 dirOffset = new Vector3(offset.x -2, offset.y, offset.z -2);
                 rotVector = new Vector3(0, 180, 0);
+                
                 break;
             case 3:
                 dirVector = Vector3.left;
                 dirOffset = new Vector3(offset.x -2, offset.y, offset.z -2);
                 rotVector = new Vector3(0, 90, 0);
+                
                 break;
         }
         

@@ -8,6 +8,8 @@ TagManager:
   - FloorPerimeter
   - FloorPerimeterCorner
   - Template
+  - FxTemporaire
+  - Generator
   layers:
   - Default
   - TransparentFX
